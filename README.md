@@ -1,10 +1,7 @@
 # Project technical_take_home
 
-One Paragraph of project description goes here
+This project is a technical take-home assignment designed to demonstrate the development of a basic key-value store service in Go. The service exposes a RESTful API that allows clients to store, retrieve, and delete key-value pairs. It also supports graceful shutdown to ensure active requests are completed when stopping the server. The API is structured to be modular, making it easy to extend and integrate with other systems.
 
-## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ## MakeFile
 
