@@ -28,18 +28,26 @@ func TestRoutes(t *testing.T) {
 		path     string
 		body     []byte
 		expected int
+		parallel bool
 	}{
-		{"GET / returns 200", "GET", "/", nil, http.StatusOK},
-		{"GET /:key returns 404 for unknown key", "GET", "/:key", nil, http.StatusNotFound},
-		{"PUT /:key creates a new key", "PUT", "/new_key", []byte(`{"key": "new_key", "value": "new_value"}`), http.StatusOK},
-		{"PUT /:key updates a key", "PUT", "/new_key", []byte(`{"key": "new_key", "value": "new_value"}`), http.StatusOK},
-		{"DELETE /:key deletes a key", "DELETE", "/new_key", nil, http.StatusGone},
-		{"No route returns 404", "GET", "/non_existent_route", nil, http.StatusNotFound},
+		{"GET / returns 200", "GET", "/", nil, http.StatusOK, true},
+		{"GET /:key returns 404 for unknown key", "GET", "/invalidKey", nil, http.StatusNotFound, true},
+		{"PUT /:key updates a key", "PUT", "/new_key", []byte(`{"name": "new_value"}`), http.StatusOK, true},
+		{"Invalid payload format", "PUT", "/new_key", []byte(`{"value": "new_value"}`), http.StatusBadRequest, true},
+		{"DELETE /:key deletes a key", "DELETE", "/new_key", nil, http.StatusNotFound, true},
+		{"No route returns 404", "GET", "/non_existent_route", nil, http.StatusNotFound, true},
+		
+		
+		{"PUT /:key creates a new key", "PUT", "/new_key", []byte(`{"name": "new_value"}`), http.StatusOK, false},
+		{"GET /:key return a 200", "GET", "/new_key", nil, http.StatusOK, false},
+		{"DELETE /:key deletes a key", "DELETE", "/new_key", nil, http.StatusGone, false},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			t.Parallel()
+			if test.parallel {
+				t.Parallel()
+			}
 			req, err := http.NewRequest(test.method, test.path, bytes.NewBuffer(test.body))
 			if err != nil {
 				t.Fatal(err)

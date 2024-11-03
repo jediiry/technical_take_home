@@ -2,12 +2,15 @@ package handler
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"technical_take_home/internal/database"
 
 	"github.com/gorilla/mux"
 )
+
+type RequestBody struct {
+	Name string `json:"name"`
+}
 
 type KeyValueHandler struct {
 	store *database.DataStore
@@ -55,13 +58,18 @@ func (h *KeyValueHandler) Put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+	var requestBody RequestBody
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	h.store.Put(key, string(body))
+	if requestBody.Name == "" {
+		http.Error(w, "Name is required", http.StatusBadRequest)
+		return
+	}
+
+	h.store.Put(key, string(requestBody.Name))
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"result": "ok"})
